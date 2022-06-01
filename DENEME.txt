@@ -1,0 +1,177 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+using UnityEngine.SceneManagement;
+
+public class PlayerController : MonoBehaviour
+{
+    public Transform Player;
+
+    public float speed;
+    public static float km = 20, sm = 20, gm = 20;
+    float azalma = 1;
+    int ScoreSayi;
+
+    [SerializeField] private Camera mainCamera;
+
+    public GameObject Gamep, Deathp, DoubleShootİmage, Plazmaİmage, Zamanİmage, Plazmamadde,Katımadde,Gazmadde,Sivimadde;
+    public Rigidbody Katip, Sivip, Gazp,Plazmap;
+    public static  Rigidbody Madde;
+  
+    static bool firlatabilir, doubleshoot;
+    public TMP_Text Score, Km;
+    public Slider ks, ss, gs;
+
+
+    public void Start()
+    {       
+        Madde = Katip;
+        firlatabilir = true;
+    }
+
+    void Update()
+    {
+        ks.value = km;
+        ss.value = sm;
+        gs.value = gm;
+        Player.transform.position += transform.forward * Time.deltaTime * speed;
+        ScoreSayi += 1;
+        Score.text = (ScoreSayi /100 ).ToString();        
+        Km.text = ((int)(Player.transform.position.z)).ToString();
+        MaddeBitis();
+        Firlat();
+        if (km < 1 & sm < 1 & gm < 1)
+        {
+            Time.timeScale = 0;
+            Gamep.SetActive(false);
+            Deathp.SetActive(true);
+        }
+    }    
+    public void DoubleShoot()
+    {       
+        StartCoroutine(DoubleSayac());
+    }
+    IEnumerator DoubleSayac()
+    {
+        doubleshoot = true;
+        DoubleShootİmage.SetActive(false);
+        yield return new WaitForSeconds(10);
+        doubleshoot = false;
+    }
+
+
+    public void PlazmaShoot()
+    {
+        StartCoroutine(PlazmaSayac());
+    }
+    IEnumerator PlazmaSayac()
+    {
+        Plazmamadde.SetActive(true);
+        Madde = Plazmap;
+        Plazmaİmage.SetActive(false);
+        Katımadde.SetActive(false);
+        Sivimadde.SetActive(false);
+        Gazmadde.SetActive(false);
+        yield return new WaitForSeconds(10);
+        Plazmamadde.SetActive(false);
+        Katımadde.SetActive(true);
+        Madde = Katip;
+    }
+
+
+    public void ZamanYavaslamasi()
+    {
+        StartCoroutine(ZamanSayac());
+    }
+    IEnumerator ZamanSayac()
+    {
+        Zamanİmage.SetActive(false);
+        Time.timeScale = 0.5f;
+        yield return new WaitForSeconds(5);
+        Time.timeScale = 1;
+    }
+    void Firlat()
+    {
+        Vector3 mousePosFar = new Vector3(Input.mousePosition.x, Input.mousePosition.y, mainCamera.farClipPlane);
+        Vector3 mousePosNear = new Vector3(Input.mousePosition.x, Input.mousePosition.y, mainCamera.nearClipPlane);
+
+        Vector3 mousePosF = mainCamera.ScreenToWorldPoint(mousePosFar);
+        Vector3 mousePosN = mainCamera.ScreenToWorldPoint(mousePosNear);
+        if (Input.GetMouseButtonDown(1))
+        {
+            Rigidbody maddeSpawn;
+            maddeSpawn = Instantiate(Madde, Player.position, Player.rotation) as Rigidbody;
+            maddeSpawn.AddForce(mousePosF - mousePosN * 0.00000000000001f,ForceMode.Acceleration);
+           
+            if (Madde == Katip)
+            {
+
+                km -= azalma;
+            }
+            if (Madde == Sivip)
+            {
+                sm -= azalma;
+            }
+            if (Madde == Gazp)
+            {
+                gm -= azalma;
+            }
+        }
+    }
+
+    void MaddeBitis()
+    {
+        if (km == 0)
+        {
+            km = 0.0001f;
+            firlatabilir = false;
+        }
+        if (sm == 0)
+        {
+            sm = 0.0001f;
+            firlatabilir = false;
+        }
+        if (gm == 0)
+        {
+            gm = 0.0001f;
+            firlatabilir = false;
+        }
+    }
+
+
+    /* public void KatiB()
+   {   
+       if (ks.value >= 1)
+       {
+           Kati.SetActive(true);
+           Sivi.SetActive(false);
+           Gaz.SetActive(false);
+           firlatabilir = true;
+           Madde = Katip;
+       }   
+   }
+   public void SiviB()
+   {      
+       if (ss.value >= 1)
+       {
+           Sivi.SetActive(true);
+           Kati.SetActive(false);
+           Gaz.SetActive(false);
+           firlatabilir = true;
+           Madde = Sivip;
+       }  
+   }
+   public void GazB()
+   {
+       if (gs.value >= 1)
+       {
+           Gaz.SetActive(true);
+           Sivi.SetActive(false);
+           Kati.SetActive(false);
+           firlatabilir = true;
+           Madde = Gazp;
+       }      
+   }*/
+}
